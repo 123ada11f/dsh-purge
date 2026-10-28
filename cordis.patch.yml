@@ -1,0 +1,40 @@
+# dsh-purge bundle patch
+#
+# 只装清洗本体：注入、指纹、面板、回滚。不再挂演练台 / 红队模式
+# （原 lib/redteam、presets/redteam、skills/redteam 已移除）。
+
+- id: system-prompt
+  config:
+    includeHarnessIdentity: false
+    personaPrefix: ""
+    # dsh 0.2.1 起 agent loop 只注册 provider/model，不再注册 {{cwd}}
+    # （dsh-system-prompt/README：「the loop does not register it」）。留着 {{cwd}} 会让提示词
+    # 插值阶段抛 unknown prompt variable "{{cwd}}" —— 每轮对话都在发请求前失败。
+    # 工作目录改由本插件在组装线上按当前 session 解析成字面量（lib/identity.js resolveCwdRefs），
+    # 用户自己的 {{cwd}} 模板由插件补注册的同名变量兜底（lib/index.js installCwdVariableCompat）。
+    personaSuffix: ""
+
+- id: dsh-purge
+  inject: [systemPrompt, tools]
+
+- insert:
+    - id: dsh-purge
+      name: 'dsh-purge'
+      inject: [systemPrompt, tools]
+      config:
+        enabled: true
+        autoApplyOnStart: false
+        autoUpdateOnStart: false
+        autoRevertOnMissing: false
+        injectOnce: false
+        stripMnemon: true
+        verbose: false
+        postPrompt: ""
+        postPromptOrder: 5100
+        autoRetry: true
+        retryMax: 3
+        autoContinue: false
+        continueMax: 3
+        continueText: "继续"
+        capabilityProtocol: true
+        hooksDenyBypass: true

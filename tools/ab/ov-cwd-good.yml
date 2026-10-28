@@ -1,0 +1,16 @@
+# A/B 复现用叠加层（好态）：personaSuffix 置空
+#
+# 等价于 dsh-purge 1.1.75 对 cordis.patch.yml 的第 1 层修复（personaSuffix: ""）。
+# 与 ov-cwd-bad.yml 配对使用：
+#
+#   node <0.2.1>/node_modules/@deepseek-ai/dsh/lib/bin.js --profile headless `
+#        --patch tools/ab/ov-cwd-good.yml "reply exactly: OK"
+# 预期 stderr：不再出现 unknown prompt variable；推进到下一阶段
+#   （例如本机无 API key 时是 MISSING_CREDENTIAL: llm-deepseek: no API key ...），
+#   即证明提示词装配已经通过。
+#
+# 注意：这只验证第 1 层（配置层）。第 2/3 层（启动时清扫残留 {{cwd}}、宿主缺 cwd 时补注册
+# 兼容变量）在插件代码里，用 tools/cwd-check.mjs 验证。
+- id: system-prompt
+  config:
+    personaSuffix: ""

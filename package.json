@@ -1,0 +1,86 @@
+{
+  "name": "dsh-purge",
+  "version": "1.1.56",
+  "description": "自用精简版，已移除原版的「演练台」与「红队模式」，功能不再等同原作者完整版：DeepSeek Harness 本机提示词与补丁清洗工具，不同模型可换不同提示词。Personal trimmed build of dsh-purge: prompt & patch cleaning for DeepSeek Harness, with the original Drill console and Red-team mode removed.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "dsh-purge": "bin/dsh-purge.js"
+  },
+  "files": [
+    "lib",
+    "!lib/default-prompt-inject.md",
+    "bin",
+    "docs",
+    "scripts",
+    "tools",
+    "client.js",
+    "cordis.patch.yml",
+    "screenshots.json",
+    "README.md",
+    "README.zh-CN.md",
+    "release-notes.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "embed-prompt": "node scripts/embed-default-prompt.mjs",
+    "test": "node --test \"test/**/*.test.mjs\""
+  },
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "dsh-plugins",
+    "deepseek-harness",
+    "instructions",
+    "rules",
+    "prompt-eval",
+    "agent"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Best-83079/dsh-purge.git"
+  },
+  "homepage": "https://github.com/Best-83079/dsh-purge#readme",
+  "bugs": {
+    "url": "https://github.com/Best-83079/dsh-purge/issues"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    },
+    "install": {
+      "preferred": "tarball",
+      "tarball": "https://github.com/Best-83079/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz",
+      "zip": "https://github.com/Best-83079/dsh-purge/archive/refs/heads/master.zip",
+      "git": "https://github.com/Best-83079/dsh-purge.git"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dshTarget": "0.2.1-rc.2"
+}

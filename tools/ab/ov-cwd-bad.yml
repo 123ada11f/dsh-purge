@@ -1,0 +1,16 @@
+# A/B 复现用叠加层（坏态）：把 {{cwd}} 塞回 personaSuffix
+#
+# 用途：证明「dsh 0.2.1 起 agent loop 只注册 provider/model，模板里的 {{cwd}} 会让
+# prompt 插值阶段抛 unknown prompt variable，导致每一轮对话在发请求前就失败」。
+#
+# 用法（0.2.1 树的 bin.js，DSH_HOME 指向本机 .dsh）：
+#   node <0.2.1>/node_modules/@deepseek-ai/dsh/lib/bin.js --profile headless `
+#        --patch tools/ab/ov-cwd-bad.yml "reply exactly: OK"
+# 预期 stderr：
+#   dsh: UNKNOWN: unknown prompt variable "{{cwd}}" in section "deployment:persona-suffix";
+#        registered variables: provider, model
+#
+# 对照组见 ov-cwd-good.yml（同一条命令只换这个文件 → 不再报变量错，直接推进到凭据/模型阶段）。
+- id: system-prompt
+  config:
+    personaSuffix: "Your working directory is {{cwd}}."
