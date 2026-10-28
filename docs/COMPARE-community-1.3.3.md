@@ -127,7 +127,7 @@ replace: \t\t\tconst timeout = 1; // [dsh-purge] ask_user_question never blocks 
 
   ```jsonc
   // %DSH_HOME%\profiles\web\package.json
-  "dsh-purge": "file:C:/Users/83079/Documents/TEST/dsh-purge"
+  "dsh-purge": "file:C:/Users\SAMPLE\Documents\TEST/dsh-purge"
   ```
 
   改完在 profile 目录 `pnpm install`（`link:` 会建 junction，宿主解析不到 `@deepseek-ai/*` bare import；

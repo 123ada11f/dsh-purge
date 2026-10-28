@@ -26,7 +26,7 @@ const indexMod = await load(path.join(pluginRoot, "lib", "index.js"));
 const host = await load(path.join(aiBase, "dsh-system-prompt", "lib", "index.js"));
 const { renderPrompt } = host;
 
-const CWD = "C:\\Users\\83079\\Documents\\TEST";
+const CWD = "C:\\Users\\SAMPLE\\Documents\\TEST";
 const context = { agent: { session: { header: { cwd: CWD } } } };
 
 /** 0.2.1 出厂 assembly 的关键形状：variables 只有 provider/model。 */

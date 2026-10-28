@@ -46,11 +46,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Best-83079/dsh-purge.git"
+    "url": "git+https://github.com/123ada11f/dsh-purge.git"
   },
-  "homepage": "https://github.com/Best-83079/dsh-purge#readme",
+  "homepage": "https://github.com/123ada11f/dsh-purge#readme",
   "bugs": {
-    "url": "https://github.com/Best-83079/dsh-purge/issues"
+    "url": "https://github.com/123ada11f/dsh-purge/issues"
   },
   "dsh": {
     "bundle": {
@@ -68,9 +68,9 @@
     },
     "install": {
       "preferred": "tarball",
-      "tarball": "https://github.com/Best-83079/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz",
-      "zip": "https://github.com/Best-83079/dsh-purge/archive/refs/heads/master.zip",
-      "git": "https://github.com/Best-83079/dsh-purge.git"
+      "tarball": "https://github.com/123ada11f/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz",
+      "zip": "https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.zip",
+      "git": "https://github.com/123ada11f/dsh-purge.git"
     }
   },
   "publishConfig": {

@@ -116,7 +116,7 @@
 
 ```powershell
 # %DSH_HOME%\profiles\web\package.json 里把 dsh-purge 的依赖改为本地仓库
-#   "dsh-purge": "file:C:/Users/83079/Documents/TEST/dsh-purge"
+#   "dsh-purge": "file:C:/Users\SAMPLE\Documents\TEST/dsh-purge"
 # （pnpm 的 link: 会建 junction，宿主解析不到 @deepseek-ai/* bare import；file: 才会装进 .pnpm 目录并正常解析）
 # 然后在 profile 目录里安装：
 cd $env:USERPROFILE\.dsh\profiles\web

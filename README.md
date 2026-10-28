@@ -29,7 +29,7 @@
   <a href="README.md">English</a> | <a href="README.zh-CN.md">中文</a>
 </p>
 
-> **This repository is a personal build (自用版), and no longer carries the original author's full feature set.** I use it only for prompt-and-patch cleaning on my own machine, so the two security-testing features the original plugin bundled in — the **Drill console (演练台)** and **Red-team mode (红队模式)**, together with its attack-drill preset and 23 red-team skills — have been removed outright. What is left is the cleaning core: grouped patch status with Apply / Restore / Uninstall, the prompt editor and rule sets, host policy, and the dock's single **Clean** page (the red-team/Drill tab, the authorization gate and the environment gate are gone, and no `$DSH_HOME/redteam` state is written any more). For the author's complete feature set, use upstream [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge). The in-panel **update source points back at this fork** (`Best-83079/dsh-purge`) as well: it lists `master` plus own `<version>-selfuse` tags only, and both update lanes refuse an upstream package (a `package.json` exporting `./redteam`) before writing, so one click cannot bring the Drill console and Red-team mode back. Removal detail: [release-notes.md](release-notes.md).
+> **This repository is a personal build (自用版), and no longer carries the original author's full feature set.** I use it only for prompt-and-patch cleaning on my own machine, so the two security-testing features the original plugin bundled in — the **Drill console (演练台)** and **Red-team mode (红队模式)**, together with its attack-drill preset and 23 red-team skills — have been removed outright. What is left is the cleaning core: grouped patch status with Apply / Restore / Uninstall, the prompt editor and rule sets, host policy, and the dock's single **Clean** page (the red-team/Drill tab, the authorization gate and the environment gate are gone, and no `$DSH_HOME/redteam` state is written any more). For the author's complete feature set, use upstream [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge). The in-panel **update source points back at this fork** (`123ada11f/dsh-purge`) as well: it lists `master` plus own `<version>-selfuse` tags only, and both update lanes refuse an upstream package (a `package.json` exporting `./redteam`) before writing, so one click cannot bring the Drill console and Red-team mode back. Removal detail: [release-notes.md](release-notes.md).
 
 > **Updates paused.** The author has no steady income for now because of work. Maintenance is on hold: no new releases, issues / PRs are not taken, and new dsh versions are not guaranteed. The repo stays usable; see Sponsor below. When maintenance resumes, this README will say so.
 
@@ -182,11 +182,11 @@ Web and the official desktop EXE are the two maintained hosts. **Install both. A
 The npm name `dsh-purge` still belongs to the paused upstream (`1.1.71`, dsh `0.2.0-rc.2` only). This fork is installed by repository URL or by a release tarball — both are accepted by the built-in dialog (**Add plugin** → paste the spec) and by the CLI:
 
 ```sh
-dsh plugin --profile web add https://github.com/Best-83079/dsh-purge
-dsh plugin --profile web add https://github.com/Best-83079/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz
+dsh plugin --profile web add https://github.com/123ada11f/dsh-purge
+dsh plugin --profile web add https://github.com/123ada11f/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz
 ```
 
-Swap `--profile web` for `--profile desktop` on the desktop EXE. Every release ships `dsh-purge-<version>.tgz` with a matching `SHA256SUMS.txt` on the [Releases](https://github.com/Best-83079/dsh-purge/releases) page.
+Swap `--profile web` for `--profile desktop` on the desktop EXE. Every release ships `dsh-purge-<version>.tgz` with a matching `SHA256SUMS.txt` on the [Releases](https://github.com/123ada11f/dsh-purge/releases) page.
 
 **Web (official `dsh web`)**
 
@@ -200,14 +200,14 @@ dsh plugin --profile web add dsh-purge
 dsh plugin --profile desktop add dsh-purge
 ```
 
-If this directory is already a clone, use `add .` instead of the package name. If `dsh` is not on PATH, use [Manual install](#manual). Registry blocked: add `https://github.com/Best-83079/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz` (or `https://github.com/Best-83079/dsh-purge/archive/refs/heads/master.tar.gz`) with the same `--profile`.
+If this directory is already a clone, use `add .` instead of the package name. If `dsh` is not on PATH, use [Manual install](#manual). Registry blocked: add `https://github.com/123ada11f/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz` (or `https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.tar.gz`) with the same `--profile`.
 
 Hub one-click on [dsh-plugin.org](https://dsh-plugin.org/plugins/yujunzhixue/dsh-purge) searches npm for this repository and installs `dsh-purge`. The catalog line may still show `github:` — use the command above if the button falls back to git.
 
 For the desktop client you can also click the button (`dsh://` deep link):
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.2.3&repo=Best-83079%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FBest-83079%2Fdsh-purge%2Freleases%2Fdownload%2Fv1.2.3-selfuse%2Fdsh-purge-1.2.3.tgz"><strong>Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.2.3&repo=123ada11f%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2F123ada11f%2Fdsh-purge%2Freleases%2Fdownload%2Fv1.2.3-selfuse%2Fdsh-purge-1.2.3.tgz"><strong>Install in desktop client</strong></a>
 </p>
 
 ### After the command: three steps
