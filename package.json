@@ -68,7 +68,7 @@
     },
     "install": {
       "preferred": "tarball",
-      "tarball": "https://github.com/123ada11f/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz",
+      "tarball": "https://github.com/123ada11f/dsh-purge/releases/download/v1.1.56-selfuse/dsh-purge-1.1.56.tgz",
       "zip": "https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.zip",
       "git": "https://github.com/123ada11f/dsh-purge.git"
     }

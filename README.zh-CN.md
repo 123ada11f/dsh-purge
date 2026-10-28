@@ -183,7 +183,7 @@ npm 上的 `dsh-purge` 仍属于暂停更新的上游（`1.1.71`，只适配 dsh
 
 ```sh
 dsh plugin --profile web add https://github.com/123ada11f/dsh-purge
-dsh plugin --profile web add https://github.com/123ada11f/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz
+dsh plugin --profile web add https://github.com/123ada11f/dsh-purge/releases/download/v1.1.56-selfuse/dsh-purge-1.1.56.tgz
 ```
 
 桌面 EXE 把 `--profile web` 换成 `--profile desktop`。每个 release 都在 [Releases](https://github.com/123ada11f/dsh-purge/releases) 页附带 `dsh-purge-<版本>.tgz` 与配套的 `SHA256SUMS.txt`。
@@ -200,14 +200,14 @@ dsh plugin --profile web add dsh-purge
 dsh plugin --profile desktop add dsh-purge
 ```
 
-当前目录已经是本仓库时，把包名换成 `add .`。`dsh` 不在 PATH 时走 [手动安装](#manual)。registry 上不去：同一个 `--profile`，把目标换成 `https://github.com/123ada11f/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz`（或 `https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.tar.gz`）。
+当前目录已经是本仓库时，把包名换成 `add .`。`dsh` 不在 PATH 时走 [手动安装](#manual)。registry 上不去：同一个 `--profile`，把目标换成 `https://github.com/123ada11f/dsh-purge/releases/download/v1.1.56-selfuse/dsh-purge-1.1.56.tgz`（或 `https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.tar.gz`）。
 
 [插件市场](https://dsh-plugin.org/plugins/yujunzhixue/dsh-purge) 一键安装会按本仓库反查 npm，命中后装 `dsh-purge`。目录页可能仍写 `github:` —— 按钮若退回 git，用上表命令。
 
 桌面客户端也可以点按钮（`dsh://` 唤起）：
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.2.3&repo=123ada11f%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2F123ada11f%2Fdsh-purge%2Freleases%2Fdownload%2Fv1.2.3-selfuse%2Fdsh-purge-1.2.3.tgz"><strong>唤起客户端一键安装</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.56&repo=123ada11f%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2F123ada11f%2Fdsh-purge%2Freleases%2Fdownload%2Fv1.1.56-selfuse%2Fdsh-purge-1.1.56.tgz"><strong>唤起客户端一键安装</strong></a>
 </p>
 
 ### 装完都要做这三步

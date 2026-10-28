@@ -183,7 +183,7 @@ The npm name `dsh-purge` still belongs to the paused upstream (`1.1.71`, dsh `0.
 
 ```sh
 dsh plugin --profile web add https://github.com/123ada11f/dsh-purge
-dsh plugin --profile web add https://github.com/123ada11f/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz
+dsh plugin --profile web add https://github.com/123ada11f/dsh-purge/releases/download/v1.1.56-selfuse/dsh-purge-1.1.56.tgz
 ```
 
 Swap `--profile web` for `--profile desktop` on the desktop EXE. Every release ships `dsh-purge-<version>.tgz` with a matching `SHA256SUMS.txt` on the [Releases](https://github.com/123ada11f/dsh-purge/releases) page.
@@ -200,14 +200,14 @@ dsh plugin --profile web add dsh-purge
 dsh plugin --profile desktop add dsh-purge
 ```
 
-If this directory is already a clone, use `add .` instead of the package name. If `dsh` is not on PATH, use [Manual install](#manual). Registry blocked: add `https://github.com/123ada11f/dsh-purge/releases/download/v1.2.3-selfuse/dsh-purge-1.2.3.tgz` (or `https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.tar.gz`) with the same `--profile`.
+If this directory is already a clone, use `add .` instead of the package name. If `dsh` is not on PATH, use [Manual install](#manual). Registry blocked: add `https://github.com/123ada11f/dsh-purge/releases/download/v1.1.56-selfuse/dsh-purge-1.1.56.tgz` (or `https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.tar.gz`) with the same `--profile`.
 
 Hub one-click on [dsh-plugin.org](https://dsh-plugin.org/plugins/yujunzhixue/dsh-purge) searches npm for this repository and installs `dsh-purge`. The catalog line may still show `github:` — use the command above if the button falls back to git.
 
 For the desktop client you can also click the button (`dsh://` deep link):
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.2.3&repo=123ada11f%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2F123ada11f%2Fdsh-purge%2Freleases%2Fdownload%2Fv1.2.3-selfuse%2Fdsh-purge-1.2.3.tgz"><strong>Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.56&repo=123ada11f%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2F123ada11f%2Fdsh-purge%2Freleases%2Fdownload%2Fv1.1.56-selfuse%2Fdsh-purge-1.1.56.tgz"><strong>Install in desktop client</strong></a>
 </p>
 
 ### After the command: three steps
