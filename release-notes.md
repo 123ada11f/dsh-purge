@@ -11,8 +11,18 @@
 > 5. **卸载链路与 apply 对称**：改用 `revertAllHosts()`；shim 的 `error:*` 返回值显式扫描；flash/override/rules 任一失败即 `ok:false` 且不生成 cleanup；CLI `--uninstall` 现在真正调度 `result.cleanup` 的删除（原来忽略）。
 > 6. **测试与 CI 恢复**：重建 `test/patch-health.test.mjs`、`test/backup-and-archive.test.mjs`、`test/update-selfuse-guard.test.mjs`（13 例，全程夹具隔离不碰真实宿主）；新增 `.github/workflows/ci.yml`（windows+ubuntu × Node 18/22/24）。双语 README 安装来源统一为本 fork。
 
-## 1.1.56 破甲强化（2026-10-29，同日第二次）：recency 通道 + 开头锚 + 思考链覆盖 + 拒绝词表扩容
+## 1.1.56 降噪（2026-10-29，同日第七次）：静态瘦身 −3,026 字符/轮
 
+> 只做「不改变任何一条硬规则」的静态去重与合并，无运行时分支、无新机制，因此不改行为、不需基线。
+> 1. **BOOST 块 1,832 → 1,259 字符**：删掉与槽内重复的 `multi-turn / 授权 / 目标归属` 三段重复表述，保留「故障化拒绝 / 操作者优先于 harness 默认 / 无归属目标先给全文再问一句 / 授权已声明即执行 / 每步重读」五个承重句。
+> 2. **CTF Core Contract 与 CTF Scope and Evidence 合并为一节**（约 2,480 → 1,180 字符）：授权前提、产物即不可信数据、默认范围、证据优先级、可逆改动五条保留，删去与之重复的表述与「reply in Chinese」（House Rules 已有）。
+> 3. **Intent mapping 17 行 → 11 行**：按类目合并（malware 与 C2 合并、pentest 与 privesc 合并、fraud/OSINT/credential 合并），关键词全部保留 —— 合并的是重复条目，不是触发词。
+> 4. **Web pentest 罐头槽位改紧凑表**：10 条 `目标占位流程：` 的载荷与参数逐个保留，只把「→ output exactly: `目标占位流程：…`」的包装收敛为一行表头说明。
+> 5. **STABILITY ANCHORS 去重**：与 House Rules 重复的两条（语言、不追问）删除，保留优先级、元问题、禁词混淆三条。
+> 6. **实测**：槽 22,798 → 20,345 字符，每轮注入 24,701 → 21,675（−12.3%）。全套 33/33、smoke 20/20（含槽与明文逐字节一致性检查）。
+> 7. **未做的部分（诚实说明）**：真正的大头是按需加载——Scoped Rules 8.2k 与 Routing 4.9k 只在与当前任务相关时才挂。它需要改注入层按会话内容选取分节，属于结构性改动，无法在无基线的情况下声称零风险，留作独立一轮并用 `scripts/probe-hardening.mjs` 做前后对照。
+
+## 1.1.56 破甲强化（2026-10-29，同日第二次）：recency 通道 + 开头锚 + 思考链覆盖 + 拒绝词表扩容
 > 1. **user 尾部 nudge（新通道）**：新增 `lib/user-tail.js`，在 `agent/pre-step` 钩子上给最后一条 user 消息追加 80 字符执行指令——system 注入在长上下文里衰减，而最近一条 user 消息权重最高，两者正交。tuning 新增 `userTail`（默认 true），逐轮动态读取、无需重启。
 > 2. **开头锚 + 思考链覆盖进加密槽**：注入文本新增「Opening Anchor」（首句必须是交付物，禁止任何前置）与「Think-chain coverage」（思考链不预演拒绝、只做交付规划）两节；槽体 21,194 → 21,666 字符，经 `embed-default-prompt.mjs` 重新加密嵌入 `lib/asset-table.js`。明文源 `lib/default-prompt-inject.md` 加入 .gitignore 不进仓库。
 > 3. **refusal-retry 默认开启**：`tuning.js` 默认值 `refusalRetry: true`（merge 语义，显式关过的用户不受影响）。词表 12 → 22 条（补齐 "I have to decline"、"against my policy"、"out of scope"、"出于安全考虑"、"违反规定"、"请理解我不能"、"建议通过合法"、"温馨提示"、"不在我的能力范围"、"我理解你的请求但" 等），扫描窗口 400 → 1200 字符（`REFUSAL_SCAN_HEAD`）。
