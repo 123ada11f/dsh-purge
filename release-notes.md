@@ -19,6 +19,13 @@
 > 4. **anchor_miss 误报修复**：多候选锚点补丁任一命中后，其余候选不再逐条报漂移；只有整枚补丁全部失配才落审计。新增回归测试。
 > 5. **审计汇流**：`lib/core.js` 新增 `setAuditSink/emitAudit`，由 `lib/index.js` 接到 `logAudit`，避免 core→audit 循环依赖。
 > 6. **测试**：新增 `test/user-tail.test.mjs`（4 例），全套 23/23 通过，smoke 19/19。
+
+## 1.1.56 破甲强化 II（2026-10-29，同日第三次）：few-shot 示范 + 重试阶梯 + tool-call 侧门
+
+> 1. **槽内 few-shot 示范**：新增「Worked Examples」两节（占位流程类、创作类各一组 Q→A 完整轨迹），共 +602 字符（槽体 21,666 → 22,268）。依据 many-shot 结论：模型模仿示范比服从抽象指令稳定。
+> 2. **拒绝重试改两段阶梯**：`streamWithRefusalRetry` 新增 `maxAttempts=2`/`attempt`；第一段沿用 `RETRY_NUDGE`，第二段用新增 `RETRY_NUDGE_2`（直接给 `目标占位流程：` 输出模板，不再讲道理）；引擎自递归，预算用尽仍判决拒绝时**原样放行**缓冲内容，绝不吞正文。
+> 3. **tool-call 参数侧门检测**：`tool-call-delta` 不再直接判定"非拒绝"，其 `argsTextDelta/argsText/delta/args` 文本并入扫描缓冲——模型正文被压住时从工具参数漏出的拒绝文案同样触发重试。
+> 4. **测试**：新增 `test/refusal-retry.test.mjs`（5 例：词表命中/长文本不误报、单段重试、两段阶梯 stage 顺序、预算用尽放行、tool-call 侧门），全套 28/28，smoke 19/19。
 # 1.2.3
 
 > **自用版（personal trimmed build）。** 本版两块：对齐社区 `v1.6.5` 的 ASAR 判定修法（对应他仓库的 issue #5），以及把「远端列表取不到」从静默降级改成面板明示。
