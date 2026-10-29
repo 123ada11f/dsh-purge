@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        node: [18, 22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Syntax check
+        run: |
+          node --check bin/dsh-purge.js
+          node --check lib/core.js
+          node --check lib/desktop.js
+          node --check lib/uninstall.js
+          node --check lib/update.js
+          node --check lib/index.js
+          node --check scripts/smoke.mjs
+      - name: Test
+        run: npm test
+      - name: Smoke
+        run: node scripts/smoke.mjs

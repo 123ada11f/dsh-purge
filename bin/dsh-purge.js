@@ -64,10 +64,14 @@ async function main() {
       console.log("[ERROR] 提示词和规则集都是空的，必须先添加提示词");
       process.exit(1);
     }
-    const { hosts, report } = await core.applyPatchesAllHosts(core.ALL_PATCHES, {
+    const { hosts, backupErrors, report } = await core.applyPatchesAllHosts(core.ALL_PATCHES, {
       preserveClientBundles: false,
       forApply: true,
     });
+    for (const [base, errs] of backupErrors || []) {
+      console.log(`  ⚠ 备份失败，已跳过该宿主 / backup failed, host skipped: ${base}`);
+      for (const [fp, err] of errs) console.log(`      ${fp}: ${err}`);
+    }
     for (const h of hosts) console.log(`  宿主 / host → ${h.aiBase}`);
     for (const r of report) {
       const m = r.status === "applied" ? "✓ 已清洗" : r.status === "already" ? "- 已是最新" : r.status === "missing_file" ? "⚠ 文件缺失" : `✗ ${r.status}`;
@@ -123,6 +127,17 @@ async function main() {
     if (!result.ok) {
       console.log("  卸载中止：还原失败，插件文件未删除。");
       process.exit(1);
+    }
+    // HTTP 路由会 schedule cleanup，CLI 原来忽略 result.cleanup —— 插件树与数据目录被留下。
+    if (result.cleanup?.length) {
+      const { scheduleCleanupRestart } = await import("../lib/uninstall.js");
+      try {
+        scheduleCleanupRestart({ cleanup: result.cleanup });
+        console.log(`  已调度清理 ${result.cleanup.length} 项（重启后删除插件树与数据目录）。`);
+      } catch (e) {
+        console.log(`  ⚠ 清理调度失败: ${e.message || e}；以下目录需手动删除:`);
+        for (const d of result.cleanup) console.log(`    ${d}`);
+      }
     }
     console.log("");
     console.log("卸载完成。请重启 dsh。");

@@ -1,6 +1,15 @@
 # 1.1.56
 
 > 版本号对齐：`package.json` 版本改为 `1.1.56`，仓库地址与安装/更新源改指 `123ada11f/dsh-purge`。以下 1.2.3 及更早条目为历史 changelog，保留原样。
+
+## 1.1.56 修订（2026-10-29）：桌面状态崩溃 + 备份/卸载闸门 + 测试与 CI 恢复
+
+> 1. **修桌面面 `purge_status` 崩溃**：`lib/core.js` 里 `desktopCliEntryPatched()` 少了 `desktop.` 前缀直接调用，桌面宿主上 `status/apply/revert/uninstall` 全部 ReferenceError。改为 `desktop.desktopCliEntryPatched(...)`。
+> 2. **原子写并发修复**：`atomicWriteSync/atomicWriteFile/atomicCopyFile` 的临时文件名从 `pid+Date.now()`（并发撞名、ENOENT）改为加 `randomUUID()`，rename 对 EPERM/EBUSY/EACCES 退避重试。压测 200 路并发写同一文件 0 失败。
+> 3. **宿主发现不再误选备份/缓存/临时目录**：`findAiBaseRecursive` 排除 `purge-host-backup-*`、`$DSH_HOME/dsh-purge`、`_npx`/`_cacache` 与系统 Temp —— 此前会把 apply 打到自己留下的备份快照上。
+> 4. **备份失败不再硬改宿主**：`applyPatchesAllHosts` 检查 `backupAll()` 的 errors，有失败即跳过该宿主并经 `backupErrors` 上报（此前返回值被丢弃，直接制造不可回滚状态）。
+> 5. **卸载链路与 apply 对称**：改用 `revertAllHosts()`；shim 的 `error:*` 返回值显式扫描；flash/override/rules 任一失败即 `ok:false` 且不生成 cleanup；CLI `--uninstall` 现在真正调度 `result.cleanup` 的删除（原来忽略）。
+> 6. **测试与 CI 恢复**：重建 `test/patch-health.test.mjs`、`test/backup-and-archive.test.mjs`、`test/update-selfuse-guard.test.mjs`（13 例，全程夹具隔离不碰真实宿主）；新增 `.github/workflows/ci.yml`（windows+ubuntu × Node 18/22/24）。双语 README 安装来源统一为本 fork。
 # 1.2.3
 
 > **自用版（personal trimmed build）。** 本版两块：对齐社区 `v1.6.5` 的 ASAR 判定修法（对应他仓库的 issue #5），以及把「远端列表取不到」从静默降级改成面板明示。

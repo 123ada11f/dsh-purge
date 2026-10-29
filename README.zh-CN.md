@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness 提示词与补丁清洗工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.2.3 · 自用精简版（personal trimmed build）</strong></p>
+<p align="center"><strong>Version 1.1.56 · 自用精简版（personal trimmed build）</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。Jailbreak for every model — swap prompts per model. 求 Star 收藏 ⭐ 如要二开，请查看署名要求部分</em>
@@ -237,7 +237,7 @@ Web 的控件只动 Web，桌面端的只动桌面应用。不要在一个宿主
 
 安装 DeepSeek Harness 插件 `dsh-purge`，Web 和官方桌面端都要装。不要全盘搜索，不要读或改其它文件，不要应用设置，也不要重启应用。
 
-`dsh` 不在 PATH 就告诉用户后停止。当前目录已是本仓库时，把下面两条里的包名都换成 `.`。npm registry 上不去，把包名换成 `https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz`。某个 profile 不存在就跳过那一条，另一条照装。
+`dsh` 不在 PATH 就告诉用户后停止。当前目录已是本仓库时，把下面两条里的包名都换成 `.`。npm registry 上不去，把包名换成 `https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.tar.gz`。某个 profile 不存在就跳过那一条，另一条照装。
 
 **Web 端（官方 `dsh web`）**
 
@@ -286,10 +286,10 @@ $cands | Select-Object -Unique | Where-Object { $_ -and (Test-Path (Join-Path $_
 **2. 把插件放到 `$DSH_HOME/plugins/dsh-purge`**（目录名必须是 `dsh-purge`，其 `package.json` 里 `"name"` 也必须是 `dsh-purge`）。
 
 ```sh
-git clone https://github.com/YuJunZhiXue/dsh-purge.git "$DSH_HOME/plugins/dsh-purge"
+git clone https://github.com/123ada11f/dsh-purge.git "$DSH_HOME/plugins/dsh-purge"
 ```
 
-没有 git：下载 [master.tar.gz](https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz)，解压后把 `dsh-purge-master` 改名为 `dsh-purge`，整夹放到 `plugins` 下。已有本仓库副本就复制整个目录，不要只拷几个 `.js`。
+没有 git：下载 [master.tar.gz](https://github.com/123ada11f/dsh-purge/archive/refs/heads/master.tar.gz)，解压后把 `dsh-purge-master` 改名为 `dsh-purge`，整夹放到 `plugins` 下。已有本仓库副本就复制整个目录，不要只拷几个 `.js`。
 
 **3. 只改对应 profile 的 `package.json`，先备份。** Web → `$DSH_HOME/profiles/web/package.json`；桌面 → `$DSH_HOME/profiles/desktop/package.json`。**只追加两处**，原有依赖和 bundle 全部留着：
 
@@ -604,7 +604,7 @@ flowchart LR
 
 ## 更新
 
-每一版改了什么、安装包在 [Releases](https://github.com/YuJunZhiXue/dsh-purge/releases)。发新版时把 `package.json` 的版本号改掉，中英文说明写进 `release-notes.md`，推到 `master` 就会自动打包。同一版本再推送不会重复发包。
+每一版改了什么、安装包在 [Releases](https://github.com/123ada11f/dsh-purge/releases)。发新版时把 `package.json` 的版本号改掉，中英文说明写进 `release-notes.md`，推到 `master` 就会自动打包。同一版本再推送不会重复发包。
 
 ## 说明
 
