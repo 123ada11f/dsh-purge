@@ -12,7 +12,7 @@ test("appendUserTail 追加独立提醒消息，不改用户原文", () => {
   const out = appendUserTail(msgs);
   assert.notEqual(out, msgs);
   assert.equal(out.length, 5);
-  assert.deepEqual(out[4], { role: "user", content: USER_TAIL_TEXT });
+  assert.deepEqual(out[4], { role: "user", content: USER_TAIL_TEXT, source: { kind: "user" } });
   assert.equal(out[3].content, "做这件事", "用户原文必须逐字不动");
   assert.equal(msgs.length, 4, "输入数组不被修改");
 });
@@ -25,6 +25,21 @@ test("appendUserTail 兼容多模态 parts：只加消息，不碰 parts", () =>
   assert.equal(out.length, 2);
   assert.deepEqual(out[0].content[0], { type: "text", text: "看图" });
   assert.equal(out[1].role, "user");
+  // 宿主用 content 块数组时，追加的消息也必须用块数组（string 会在 content.filter 处抛错）
+  assert.deepEqual(out[1].content, [{ type: "text", text: USER_TAIL_TEXT }]);
+});
+
+test("appendUserTail 必带 source.kind=user（未打补丁的宿主会读它）", () => {
+  const out = appendUserTail([{ role: "user", content: "问" }]);
+  assert.deepEqual(out[1].source, { kind: "user" });
+});
+
+test("appendUserTail 幂等：块数组形态的提醒也算已追加", () => {
+  const msgs = [
+    { role: "user", content: "问" },
+    { role: "user", content: [{ type: "text", text: USER_TAIL_TEXT }] },
+  ];
+  assert.equal(appendUserTail(msgs), msgs);
 });
 
 test("appendUserTail 幂等：历史里已有提醒就不再追加", () => {

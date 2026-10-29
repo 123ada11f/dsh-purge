@@ -2,6 +2,13 @@
 
 > 版本号对齐：`package.json` 版本改为 `1.1.56`，仓库地址与安装/更新源改指 `123ada11f/dsh-purge`。以下 1.2.3 及更早条目为历史 changelog，保留原样。
 
+## 1.1.56 修订（2026-10-29，同日第九次）：user-tail 在未打补丁的宿主上崩溃
+
+> 用真实探针通道（临时 profile + 插件 + 打补丁的 npx 运行时）复现出的兼容缺陷：
+> 1. **`Cannot read properties of undefined (reading 'kind')`**：宿主部分插件（如 `repeat-tool-reminder`）在 `agent/pre-step` 里读 `message.source.kind`；我追加的提醒消息没有 `source`，在**未打代码补丁**的宿主上（例如只装插件的 headless 环境）每一轮必炸。修复：追加消息显式带 `source: { kind: "user" }`。
+> 2. **`event.data.content.filter is not a function`**：新版宿主把 `message.content` 当块数组处理，字符串内容同样抛错。修复：镜像当前会话最后一条 user 消息的 content 形态 —— 宿主用块数组就追加 `[{ type: "text", text }]`，用字符串才追加字符串。
+> 3. 幂等判定同步改为按 content 的纯文本比较（块数组形态的提醒也算已追加）。`test/user-tail.test.mjs` 增至 6 例，全套测试通过。
+
 ## 1.1.56 修订（2026-10-29）：桌面状态崩溃 + 备份/卸载闸门 + 测试与 CI 恢复
 
 > 1. **修桌面面 `purge_status` 崩溃**：`lib/core.js` 里 `desktopCliEntryPatched()` 少了 `desktop.` 前缀直接调用，桌面宿主上 `status/apply/revert/uninstall` 全部 ReferenceError。改为 `desktop.desktopCliEntryPatched(...)`。
