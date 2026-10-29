@@ -145,6 +145,26 @@ check("cordis.patch.yml 仍含 dsh-purge 插件条目", () => {
   if (!/insert:/.test(text)) throw new Error("cordis.patch.yml 里找不到 insert 段");
 });
 
+// 加密槽是构建产物：忘了重跑 embed-default-prompt.mjs 就会发布旧槽，线上毫无报错。
+// 明文源存在时必须逐字节一致；不存在（发行包/CI 干净检出）则跳过。
+{
+  const mdPath = path.join(root, "lib", "default-prompt-inject.md");
+  if (fs.existsSync(mdPath)) {
+    const tableRead = await import(pathToFileURL(path.join(root, "lib", "table-read.js")).href);
+    check("加密槽与 lib/default-prompt-inject.md 逐字节一致", () => {
+      const want = fs.readFileSync(mdPath, "utf8");
+      const got = tableRead.openSlot();
+      if (got !== want) {
+        let i = 0;
+        while (i < got.length && i < want.length && got[i] === want[i]) i += 1;
+        throw new Error(
+          `漂移起点 字符#${i}: 槽=${JSON.stringify(got.slice(i, i + 40))} 源=${JSON.stringify(want.slice(i, i + 40))}；请重跑 node scripts/embed-default-prompt.mjs`,
+        );
+      }
+    });
+  }
+}
+
 console.log(`smoke: ${ok.length} 项通过`);
 for (const line of ok) console.log(`  ok  ${line}`);
 if (failures.length) {
