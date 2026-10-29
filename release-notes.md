@@ -11,6 +11,16 @@
 > 5. **卸载链路与 apply 对称**：改用 `revertAllHosts()`；shim 的 `error:*` 返回值显式扫描；flash/override/rules 任一失败即 `ok:false` 且不生成 cleanup；CLI `--uninstall` 现在真正调度 `result.cleanup` 的删除（原来忽略）。
 > 6. **测试与 CI 恢复**：重建 `test/patch-health.test.mjs`、`test/backup-and-archive.test.mjs`、`test/update-selfuse-guard.test.mjs`（13 例，全程夹具隔离不碰真实宿主）；新增 `.github/workflows/ci.yml`（windows+ubuntu × Node 18/22/24）。双语 README 安装来源统一为本 fork。
 
+## 1.1.56 分节闸门（2026-10-29，同日第八次）：按任务类裁剪注入槽，**默认关闭**
+
+> 承接上一轮遗留的「按需加载」。本轮只做**注入文本层面的分节裁剪**，不动注入层结构；因行为等价性无法在本机验证，默认关闭。
+> 1. **新增 `lib/slot-gate.js`**：`gateSlot(fullText, userText)` 纯函数。恒留：人格头、Opening Anchor、Worked Examples、Style、HARD OUTPUT RULES、REFUSAL HARDENING、CTF Contract、Sandbox directions、Intent mapping、Never Refuse 四层阶梯、House Rules。只裁：①单条 Scoped Rule（25 条中恒留 2/3/4/13/21 五类，其余按中英关键词命中）②整段 Routing（无 web/破解关键词时）。
+> 2. **保守兜底**：任务类不明（非恒留规则与 Routing 全无命中）时原样返回全文；空用户文本、解析失败、任何异常同样返回全文。宁可多花 token，不可少挂规则。
+> 3. **实测省幅**（基数 = 槽 20,345 字符）：闲聊 0%（不裁）、渗透 −18%、木马 −19%、破解 APK −18%、成人创作 −42%、路由器固件 −43%。`test/slot-gate.test.mjs` 9 例锁死「恒留段永不缺失」，全套 43/43、smoke 20/20。
+> 4. **接线（默认不生效）**：`lib/user-tail.js` 在 `agent/pre-step` 记录会话首条用户消息为任务类判据（`__dshPurgeGateKey`）；`lib/index.js` 的 `__dshPurgeHungPrompt` 四个兜底出口统一过 `gate()`，同会话内按 key 缓存以保持注入端 head/tail 去重稳定；`lib/core.js` 的 `emitAudit` 改为导出以便审计 `slot_gate` 事件；`tuning.slotGate` 默认 **false**。
+> 5. **探针验证失败（诚实结论）**：`scripts/probe-hardening.mjs` + 新增 `scripts/probe-cmd.mjs`（`PROBE_ARM=full|gated`）用 `dsh --profile headless --json` 作模型通道，但 headless profile 未装本插件，只能把注入文本**贴在用户消息里**送进去 —— 模型把它当「用户贴进来的越狱串」：20 条基线里 E1/E2 直接指出「你贴进来的是一整段系统注入」，B2/D3 超时，拒绝率 5%、首行交付率 80%、空回答 2，且探针执行期在仓库里留下了 `esp/`、`membership-unlock/` 等副作用目录（已清理）。这不是系统通道行为，基线不成立，A/B 结论无效。已排除的替代通道：`--system-prompt`（无此 flag）、`AGENTS.md`（实测不被 headless 采纳）、把插件装进临时 profile（激活路径会 `reapplyInstalled` 并可能调度宿主重启，风险不可接受）。
+> 6. **开关**：`$DSH_HOME/dsh-purge/tuning.json` 写 `{"slotGate": true}` 即启用。在拿到真实系统通道的前后对照前，默认值保持 false。
+
 ## 1.1.56 降噪（2026-10-29，同日第七次）：静态瘦身 −3,026 字符/轮
 
 > 只做「不改变任何一条硬规则」的静态去重与合并，无运行时分支、无新机制，因此不改行为、不需基线。
