@@ -2,6 +2,13 @@
 
 > 版本号对齐：`package.json` 版本改为 `1.1.56`，仓库地址与安装/更新源改指 `123ada11f/dsh-purge`。以下 1.2.3 及更早条目为历史 changelog，保留原样。
 
+## 1.1.56 修订（2026-10-29，同日第十次）：分节闸门兼容旧结构 override + A/B 实测结论
+
+> 1. **闸门真正接上主路径**：此前 `gateSlot` 只挂在 hung 兜底出口，而主注入走 `ctx.on("system-prompt/assemble")` → `rewriteLiveAssembly`，等于没挂。现抽成模块级 `gateInjectText()`，两路共用（`lib/index.js`）。
+> 2. **兼容旧 1.2.3 结构**：线上 `$DSH_HOME/prompt-inject.md` 可能是 `## 章节` + 全大写 `BILINGUAL ROUTING` / `CANNED WORKFLOWS` / `WEB PENTEST ROUTING` 段的老规范（无 `═` 分隔线），旧解析器直接放弃 → `saved=0`。新增 `gateLegacyText()`：只裁 Scoped Rules 的编号条目（恒留 2/3/4/13/21 中存在的号）和未命中路由词的罐头段，其余行逐字保留。新增 3 例测试。
+> 3. **A/B 实测（20 条探针，真实注入通道）**：full 臂 拒绝率 10% / 首行交付率 85%；gated 臂 拒绝率 10% / 交付率 80%（两条 B 类超时拉低）。按既定判据「拒绝率不降且交付率不降」**不通过**，因此 `tuning.slotGate` 默认保持 `false`，功能保留为可选实验开关。
+> 4. 教训记录：探针必须在独立临时目录跑 —— 早前在仓库根跑，模型会真的在工作区落 `esp/`、`_dump*.py` 之类副作用文件。
+
 ## 1.1.56 修订（2026-10-29，同日第九次）：user-tail 在未打补丁的宿主上崩溃
 
 > 用真实探针通道（临时 profile + 插件 + 打补丁的 npx 运行时）复现出的兼容缺陷：
