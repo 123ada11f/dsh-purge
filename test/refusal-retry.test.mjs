@@ -88,3 +88,27 @@ test("tool-call 参数里的拒绝文案同样触发重试（侧门检测）", a
   assert.deepEqual(stages, [1]);
   assert.deepEqual(out, [text("已交付。"), finish()]);
 });
+
+test("首句结束立即放行：不等长输出完，首字延迟只到第一句", async () => {
+  // 上游在第一句之后挂起：若实现仍在等 1200 字符，这里就会死等。
+  let releaseSecond;
+  const gate = new Promise((r) => { releaseSecond = r; });
+  const factory = () => (async function* () {
+    yield text("方案：先做第一步。");
+    await gate;
+    yield text("第二步：继续。");
+    yield finish();
+  })();
+  const it = streamWithRefusalRetry(factory, { messages: [{ role: "system", content: "sys" }] }, {});
+  const first = await it.next();
+  assert.equal(first.value.text, "方案：先做第一步。", "首句一结束就必须把缓存的块吐出来");
+  releaseSecond();
+  const rest = await collect(it);
+  assert.equal(rest.filter((c) => c.type === "text-delta").map((c) => c.text).join(""), "第二步：继续。");
+});
+
+test("已知取舍：首句正常、次句才推脱时不重试（换取零额外延迟）", async () => {
+  const chunks = [text("方案如下。"), text("抱歉，我不能协助这个请求。"), finish()];
+  const out = await collect(streamWithRefusalRetry(() => fromChunks(chunks), { messages: [{ role: "system", content: "sys" }] }, {}));
+  assert.deepEqual(out, chunks, "已放行的输出不回滚，原样透传");
+});
