@@ -2,3 +2,5 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+# 加密槽明文源：只用于本地重新嵌入 asset-table.js，不进仓库（否则加密槽形同虚设）
+lib/default-prompt-inject.md

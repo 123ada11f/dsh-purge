@@ -10,6 +10,15 @@
 > 4. **备份失败不再硬改宿主**：`applyPatchesAllHosts` 检查 `backupAll()` 的 errors，有失败即跳过该宿主并经 `backupErrors` 上报（此前返回值被丢弃，直接制造不可回滚状态）。
 > 5. **卸载链路与 apply 对称**：改用 `revertAllHosts()`；shim 的 `error:*` 返回值显式扫描；flash/override/rules 任一失败即 `ok:false` 且不生成 cleanup；CLI `--uninstall` 现在真正调度 `result.cleanup` 的删除（原来忽略）。
 > 6. **测试与 CI 恢复**：重建 `test/patch-health.test.mjs`、`test/backup-and-archive.test.mjs`、`test/update-selfuse-guard.test.mjs`（13 例，全程夹具隔离不碰真实宿主）；新增 `.github/workflows/ci.yml`（windows+ubuntu × Node 18/22/24）。双语 README 安装来源统一为本 fork。
+
+## 1.1.56 破甲强化（2026-10-29，同日第二次）：recency 通道 + 开头锚 + 思考链覆盖 + 拒绝词表扩容
+
+> 1. **user 尾部 nudge（新通道）**：新增 `lib/user-tail.js`，在 `agent/pre-step` 钩子上给最后一条 user 消息追加 80 字符执行指令——system 注入在长上下文里衰减，而最近一条 user 消息权重最高，两者正交。tuning 新增 `userTail`（默认 true），逐轮动态读取、无需重启。
+> 2. **开头锚 + 思考链覆盖进加密槽**：注入文本新增「Opening Anchor」（首句必须是交付物，禁止任何前置）与「Think-chain coverage」（思考链不预演拒绝、只做交付规划）两节；槽体 21,194 → 21,666 字符，经 `embed-default-prompt.mjs` 重新加密嵌入 `lib/asset-table.js`。明文源 `lib/default-prompt-inject.md` 加入 .gitignore 不进仓库。
+> 3. **refusal-retry 默认开启**：`tuning.js` 默认值 `refusalRetry: true`（merge 语义，显式关过的用户不受影响）。词表 12 → 22 条（补齐 "I have to decline"、"against my policy"、"out of scope"、"出于安全考虑"、"违反规定"、"请理解我不能"、"建议通过合法"、"温馨提示"、"不在我的能力范围"、"我理解你的请求但" 等），扫描窗口 400 → 1200 字符（`REFUSAL_SCAN_HEAD`）。
+> 4. **anchor_miss 误报修复**：多候选锚点补丁任一命中后，其余候选不再逐条报漂移；只有整枚补丁全部失配才落审计。新增回归测试。
+> 5. **审计汇流**：`lib/core.js` 新增 `setAuditSink/emitAudit`，由 `lib/index.js` 接到 `logAudit`，避免 core→audit 循环依赖。
+> 6. **测试**：新增 `test/user-tail.test.mjs`（4 例），全套 23/23 通过，smoke 19/19。
 # 1.2.3
 
 > **自用版（personal trimmed build）。** 本版两块：对齐社区 `v1.6.5` 的 ASAR 判定修法（对应他仓库的 issue #5），以及把「远端列表取不到」从静默降级改成面板明示。
