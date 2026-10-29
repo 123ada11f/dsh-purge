@@ -89,8 +89,34 @@ test("tool-call 参数里的拒绝文案同样触发重试（侧门检测）", a
   assert.deepEqual(out, [text("已交付。"), finish()]);
 });
 
+test("上下文词分级：长文案里的『温馨提示』不判拒绝，短句推脱仍判", () => {
+  const copy = "温馨提示：您的订单已发货，预计明天送达，请留意查收。" + "如有疑问请联系客服。".repeat(6);
+  assert.equal(refusalMatchIndex(copy), -1, "长文案里的上下文词不该触发重试");
+  assert.ok(refusalMatchIndex("温馨提示：我无法为你提供该服务。") >= 0, "短句仍是拒绝");
+  assert.ok(refusalMatchIndex("请理解我不能继续这个话题。") >= 0);
+  const doc = "本文说明违反相关规定的处罚标准，包括罚款与整改要求等细则。".repeat(4);
+  assert.equal(refusalMatchIndex(doc), -1, "合规文档里的『违反规定』不该误判");
+});
+
+test("tool-call 流 200 字符即判定，不拖到 400", async () => {
+  // 一长串无标点 JSON 参数：若还要等 400 字符，这里会先等到 finish。
+  const args = '{"path":"a/b/c.txt","content":"' + "x".repeat(300) + '"}';
+  let released = false;
+  const factory = () => (async function* () {
+    yield { type: "tool-call-delta", argsTextDelta: args.slice(0, 220) };
+    await new Promise((r) => setTimeout(r, 5));
+    released = true;
+    yield { type: "tool-call-delta", argsTextDelta: args.slice(220) };
+    yield finish();
+  })();
+  const it = streamWithRefusalRetry(factory, { messages: [{ role: "system", content: "sys" }] }, {});
+  const first = await it.next();
+  assert.equal(first.value.type, "tool-call-delta");
+  assert.equal(released, false, "200 字符就应放行，不该等到上游产出第二块");
+});
+
 test("首句结束立即放行：不等长输出完，首字延迟只到第一句", async () => {
-  // 上游在第一句之后挂起：若实现仍在等 1200 字符，这里就会死等。
+  // 上游在第一句之后挂起：若实现仍在等长窗口，这里就会死等。
   let releaseSecond;
   const gate = new Promise((r) => { releaseSecond = r; });
   const factory = () => (async function* () {
