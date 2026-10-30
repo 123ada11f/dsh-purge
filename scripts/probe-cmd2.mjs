@@ -4,41 +4,49 @@
 //
 // 用法：echo "探针" | PROBE_ARM=full|gated node scripts/probe-cmd2.mjs
 import { spawnSync } from "node:child_process";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, unlinkSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+// 臂切换走进程环境变量（lib/tuning.js 的 DSH_PURGE_TUNING），不写全局 tuning.json，
+// 这样 full/gated 两臂可以在同一台机器上并发跑而不互相踩。
 const arm = (process.env.PROBE_ARM || "full").trim();
 const profile = process.env.PROBE_PROFILE || "probe";
 const timeoutMs = Number(process.env.PROBE_TIMEOUT_MS || 180000);
-
-const dshHome = process.env.DSH_HOME || path.join(os.homedir(), ".dsh");
-const tuningDir = path.join(dshHome, "dsh-purge");
-const tuningFile = path.join(tuningDir, "tuning.json");
-
-function setSlotGate(on) {
-  let cur = {};
-  try { cur = JSON.parse(readFileSync(tuningFile, "utf8")) || {}; } catch { cur = {}; }
-  cur.slotGate = on;
-  try {
-    mkdirSync(tuningDir, { recursive: true });
-    writeFileSync(tuningFile, JSON.stringify(cur, null, 2), "utf8");
-  } catch { /* 写不进去就按默认走 */ }
-}
-setSlotGate(arm === "gated");
 
 const prompt = (() => {
   try { return readFileSync(0, "utf8").trim(); } catch { return ""; }
 })();
 if (!prompt) { process.stderr.write("probe-cmd2: 空探针\n"); process.exit(2); }
 
+const childEnv = { ...process.env, DSH_PURGE_TUNING: JSON.stringify({ slotGate: arm === "gated" }) };
+
 const binJs = process.env.PROBE_DSH_BIN || "";
+// 可选：PROBE_MODEL / PROBE_REASONING 通过 --patch 覆盖默认模型，不必改 profile。
+const wantModel = (process.env.PROBE_MODEL || "").trim();
+const wantEffort = (process.env.PROBE_REASONING || "").trim();
+let overlayArgs = [];
+if (wantModel) {
+  const ovPath = path.join(os.tmpdir(), `probe-model-${process.pid}.yml`);
+  const lines = [
+    "- id: agent-default-model",
+    "  config:",
+    "    provider: magpie",
+    `    model: ${JSON.stringify(wantModel)}`,
+  ];
+  if (wantEffort) lines.push(`    reasoningEffort: ${JSON.stringify(wantEffort)}`);
+  writeFileSync(ovPath, lines.join("\n") + "\n", "utf8");
+  overlayArgs = ["--patch", ovPath];
+  process.on("exit", () => { try { unlinkSync(ovPath); } catch { /* ignore */ } });
+}
+const baseArgs = ["--profile", profile, ...overlayArgs, "--json", "-"];
 const r = spawnSync(binJs ? process.execPath : "dsh",
-  binJs ? [binJs, "--profile", profile, "--json", "-"] : ["--profile", profile, "--json", "-"], {
+  binJs ? [binJs, ...baseArgs] : baseArgs, {
   input: prompt,
   encoding: "utf8",
   timeout: timeoutMs,
   shell: !binJs,
+  env: childEnv,
   maxBuffer: 32 * 1024 * 1024,
 });
 
