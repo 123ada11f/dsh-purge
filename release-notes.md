@@ -2,6 +2,13 @@
 
 > 版本号对齐：`package.json` 版本改为 `1.1.56`，仓库地址与安装/更新源改指 `123ada11f/dsh-purge`。以下 1.2.3 及更早条目为历史 changelog，保留原样。
 
+## 1.1.56 修订（2026-10-30，第十五次）：多宿主误选修复 + Routing-only A/B（按 DeepSeek 保留）
+
+> 1. **`--status` 不再误选 PiDeck 旧运行时**：`lib/core.js` 的递归兜底扫盘改为**所有 surface 都必须显式 `DSH_PURGE_DEEP_AIBASE_SCAN=1` 才开启**（原先 desktop 例外变成了"web 也会扫"，结果在 Windows 上 60s+ 扫到 `APPDATA\PiDeck\runtimes\dsh\0.2.0-rc.2` 并把它当成当前宿主）。现在无宿主时直接给出 `set DSH_BASE or --host`，新增 `--host <绝对路径>` 与 `--discover`（完整枚举候选）；`listKnownPiDeckAiBases()` 专门把已知的 PiDeck 运行时列出来当**警告**而不是候选。
+> 2. **`apply/revert` 支持 `--host` 定点操作**：`enumeratePatchAiBases({aiBase})` 走显式路径时不再做桌面密封宿主再解析，`applyPatchesAllHosts()` / `revertAllHosts()` 都透传该参数。测试覆盖显式 host 两种语法、非法路径、Web/npx/PiDeck 分类、status 候选、apply/revert 只写指定夹具。
+> 3. **Routing-only 单段裁剪 A/B（P1 复核）**：GLM-5.3-Flash 上 `PROBE_ARM=routing` 60 行跑完，拒绝率 **5/51 = 9.8%**，与 full 基线 5/51 = 10% 完全打平（p=1.000），但交付率从 78% 掉到 65%（-13pp），主因 11 条 150s 超时（B2/D2/D3 慢性撞顶）。DeepSeek 补齐 60 行后拒绝率 **0/51 = 0%**（基线 3/51 = 5.9%），唯一变化是 E4 3/3→0/3，交付率 80%→86.3%，空回答同为 7。**按用户决策只看 DeepSeek：routing 不降交付、拒绝率更低，保留并设为默认值；GLM 数据只作参考。**
+> 4. **`tuning.slotGate` 默认值改为 `"routing"`**（只裁 Routing 段、25 条 Scoped Rules 全留）；`slot-gate.test.mjs` 同步改为断言默认 routing。DeepSeek 完整 60 行见 `probes/routing-ds.json`（n=51）。真正要收敛的是超时与输出长度，不是"裁不裁"，详见 `docs/armor-gap-analysis.md` 第十一节。
+
 ## 1.1.56 修订（2026-10-30，第十四次）：n=3 重复采样定论 —— 分节闸门默认关闭
 
 > 1. **探针脚本补齐三项能力**：`--repeat N`（同题多轮取稳定度，逐条增量落盘）、`--seed`（预置假工作区：targets.txt / notes.md / app.js / 合法 store-only `sample.apk`，堵住"没有样本"这块挡箭牌）、`skipInRate`（`D1/D4/E1` 在单轮通道里没有上文，模型答"这是第一条消息"属正确行为，剔出分母）。另有 `--suite extra`（成人/固件/逆向/外挂/社工/资金 六题）与 `--compare a.json b.json`（逐题表 + 符号检验 p 值）。

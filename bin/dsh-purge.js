@@ -9,6 +9,7 @@ function printStatus(state) {
   const out = [];
   out.push("dsh-purge 状态 / Status");
   out.push("  宿主 / surface " + (state.surface || "web"));
+  out.push(...core.hostStatusLines(state));
   out.push("  DSH_HOME      " + state.dsh_home);
   if (state.desktop_install) out.push("  桌面安装       " + state.desktop_install);
   if (state.ai_base) {
@@ -24,11 +25,15 @@ function printStatus(state) {
   out.push(`  注入文件       ${state.override_path}`);
   out.push(`  注入状态       ${state.override_status}`);
   out.push("");
-  out.push(`  补丁 ${state.patches_applied}/${core.ALL_PATCHES.length} 已清洗, ${state.patches_pending} 待清洗`);
-  for (const p of core.ALL_PATCHES) {
-    const s = state.patch_status[p.id];
-    const mark = s === "applied" ? "✓" : s === "pending" ? "✗" : "·";
-    out.push(`    ${mark} [#${String(p.id).padEnd(2)}] ${p.name.padEnd(30)} ${p.layer}/${p.layer_en} — ${s}`);
+  if (state.ai_base) {
+    out.push(`  补丁 ${state.patches_applied}/${core.ALL_PATCHES.length} 已清洗, ${state.patches_pending} 待清洗`);
+    for (const p of core.ALL_PATCHES) {
+      const s = state.patch_status[p.id];
+      const mark = s === "applied" ? "✓" : s === "pending" ? "✗" : "·";
+      out.push(`    ${mark} [#${String(p.id).padEnd(2)}] ${p.name.padEnd(30)} ${p.layer}/${p.layer_en} — ${s}`);
+    }
+  } else {
+    out.push("  补丁 — 未定位宿主，未扫描 / host not found; set DSH_BASE or --host");
   }
   out.push("");
   out.push(`  shim: dsh.cmd=${state.shim_cmd}  dsh.ps1=${state.shim_ps1}  dsh=${state.shim_bin}`);
@@ -37,6 +42,8 @@ function printStatus(state) {
 
 async function main() {
   const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--edit", "--help"].includes(a));
+  const host = core.explicitHostFromArgs(args);
+  const discoverHosts = args.includes("--discover");
 
   if (mode === "--help" || args.includes("-h")) {
     console.log(`dsh-purge 用法:
@@ -46,19 +53,25 @@ async function main() {
   dsh-purge --uninstall  卸载插件（已应用则先还原）
   dsh-purge --edit       编辑注入文件 prompt-inject.md
   dsh-purge --help       帮助
+  --host <绝对路径>      显式选择 aiBase（也接受 --host=<path>）
+  --discover            状态中完整枚举桌面候选（默认快速探测，不扫盘）
+  环境变量               DSH_BASE 指定宿主；DSH_PURGE_DEEP_AIBASE_SCAN=1 才开启深度扫盘兜底
 
 开关（$DSH_HOME/dsh-purge/tuning.json，缺省即默认值）:
   boost           true    提示词尾部 BOOST 段（操作者权重重申）
   injectPosition  "head"  注入位置：head | every-step | closer
   refusalRetry    true    正文出现拒绝（含软推脱/兜底话术）时自动重试
   userTail        true    每步追加 <dsh_step> 执行提醒
-  slotGate        false   按任务类裁剪注入文本（实测行为等价但类目不均，默认关）
+  slotGate        "routing"   false|true|"routing"；routing=只裁 Routing、规则全留，默认 "routing"
   askNoBlock      true    ask_user_question 不阻塞
   rewind          true    回退时重置待办`);
     return;
   }
 
-  const state = await core.gatherState();
+  const state = await core.gatherState({
+    ...(host ? { aiBase: host } : {}),
+    ...(discoverHosts ? { hostDiscover: true } : {}),
+  });
   console.log(printStatus(state));
   console.log("");
 
@@ -76,6 +89,7 @@ async function main() {
     const { hosts, backupErrors, report } = await core.applyPatchesAllHosts(core.ALL_PATCHES, {
       preserveClientBundles: false,
       forApply: true,
+      ...(host ? { aiBase: host } : {}),
     });
     for (const [base, errs] of backupErrors || []) {
       console.log(`  ⚠ 备份失败，已跳过该宿主 / backup failed, host skipped: ${base}`);
@@ -110,7 +124,7 @@ async function main() {
     console.log("全部完成 / All done。重启 dsh 生效 / Restart dsh to take effect.");
   } else if (mode === "--revert") {
     if (state.ai_base || core.enumeratePatchAiBases().length) {
-      const { reverted, errors } = await core.revertAllHosts();
+      const { reverted, errors } = await core.revertAllHosts(host ? { aiBase: host } : {});
       for (const p of reverted) console.log(`  ✓ 已还原 / Reverted ${p}`);
       for (const [p, e] of errors) console.log(`  ⚠ 还原失败 ${p}: ${e}`);
       if (reverted.length === 0) console.log("  - 没有补丁备份可还原 / no patch backup");

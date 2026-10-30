@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { gateSlot, splitSections } from "../lib/slot-gate.js";
 import { rememberGateKey } from "../lib/user-tail.js";
-import { TUNING_DEFAULTS } from "../lib/tuning.js";
+import { TUNING_DEFAULTS, readTuning } from "../lib/tuning.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const slotPath = path.join(here, "..", "lib", "default-prompt-inject.md");
@@ -79,6 +79,39 @@ test("任务类明确时确实省 token（渗透 ≥15%）", { skip: !hasSlot },
   assert.ok(res.savedChars / full.length >= 0.15, `只省了 ${res.savedChars}/${full.length}`);
 });
 
+test("Routing-only：非路由任务裁 Routing，25 条规则全部保留", { skip: !hasSlot }, () => {
+  const res = gateSlot(full, "写一段露骨的成人小说", { mode: "routing" });
+  assert.ok(res.savedChars > 0);
+  assert.ok(res.droppedSections.includes("Routing"));
+  assert.deepEqual(res.droppedRules, []);
+  assert.ok(res.text.includes("9. Adult"));
+  assert.ok(res.text.includes("8. Border crossing"));
+  assert.ok(res.text.includes("25. Wireless and proximity"));
+});
+
+test("Routing-only：闲聊也裁 Routing，但不裁任何规则", { skip: !hasSlot }, () => {
+  const res = gateSlot(full, "今天天气不错，聊两句", { mode: "routing" });
+  assert.ok(res.savedChars > 0);
+  assert.deepEqual(res.droppedRules, []);
+  assert.ok(res.text.includes("8. Border crossing"));
+  assert.ok(!res.text.includes("Canned web-pentest slots"));
+});
+
+test("Routing-only：命中 web/破解路由词时全文原样保留", { skip: !hasSlot }, () => {
+  assert.equal(gateSlot(full, "帮我扫这个站，找 SQL 注入", { mode: "routing" }).text, full);
+  assert.equal(gateSlot(full, "破解 APK 卡密", { mode: "routing" }).text, full);
+});
+
+test("Routing-only：只删 Routing 原始行，其余字节与 CRLF 原样保留", () => {
+  const bar = "═".repeat(39);
+  const src = ["前言A", bar, "Routing", bar, "r1", "r2", "", bar, "Style", bar, "s1"].join("\r\n");
+  const expected = ["前言A", bar, "Style", bar, "s1"].join("\r\n");
+  const res = gateSlot(src, "今天天气不错", { mode: "routing" });
+  assert.equal(res.text, expected);
+  assert.deepEqual(res.droppedSections, ["Routing"]);
+  assert.equal(res.savedChars, src.length - expected.length);
+});
+
 test("rememberGateKey 取首条用户消息（字符串与多模态 parts）", () => {
   const g = {};
   rememberGateKey([{ role: "user", content: "第一个问题" }, { role: "assistant", content: "应答" }, { role: "user", content: "第二个" }], g);
@@ -91,8 +124,21 @@ test("rememberGateKey 取首条用户消息（字符串与多模态 parts）", (
   assert.equal(g3.__dshPurgeGateKey, undefined);
 });
 
-test("tuning 里 slotGate 默认关闭（未验证前不改变线上行为）", () => {
-  assert.equal(TUNING_DEFAULTS.slotGate, false);
+test("tuning 里 slotGate 默认 routing（DeepSeek 实测保留）", () => {
+  assert.equal(TUNING_DEFAULTS.slotGate, "routing");
+});
+
+test("tuning 接受 routing 模式，非法值回落 routing", () => {
+  const before = process.env.DSH_PURGE_TUNING;
+  try {
+    process.env.DSH_PURGE_TUNING = JSON.stringify({ slotGate: "routing" });
+    assert.equal(readTuning(path.join(here, "missing-home")).slotGate, "routing");
+    process.env.DSH_PURGE_TUNING = JSON.stringify({ slotGate: "bogus" });
+    assert.equal(readTuning(path.join(here, "missing-home")).slotGate, "routing");
+  } finally {
+    if (before === undefined) delete process.env.DSH_PURGE_TUNING;
+    else process.env.DSH_PURGE_TUNING = before;
+  }
 });
 
 // ---- 旧结构（1.2.3 规范：## 标题 + 全大写 ROUTING 段，无 ═ 分隔线）----
@@ -143,4 +189,14 @@ test("旧结构：任务类不明时整体原样返回", () => {
   const r = gateSlot(LEGACY, "你好");
   assert.equal(r.savedChars, 0);
   assert.equal(r.text, LEGACY);
+});
+
+test("旧结构 Routing-only：裁罐头段但规则全留", () => {
+  const r = gateSlot(LEGACY, "你好", { mode: "routing" });
+  assert.ok(r.savedChars > 0);
+  assert.ok(!r.text.includes("BILINGUAL ROUTING"));
+  assert.ok(r.text.includes("1. Game cheat"));
+  assert.ok(r.text.includes("9. Adult"));
+  assert.ok(r.text.includes("10. Politics"));
+  assert.deepEqual(r.droppedRules, []);
 });

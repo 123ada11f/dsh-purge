@@ -2,7 +2,7 @@
 // PROBE_CMD 适配器（真实系统通道）：注入由 probe profile 里的 dsh-purge 插件完成，
 // 探针本身作为普通用户消息送入 —— 与线上一致。两臂只差 tuning.slotGate。
 //
-// 用法：echo "探针" | PROBE_ARM=full|gated node scripts/probe-cmd2.mjs
+// 用法：echo "探针" | PROBE_ARM=full|gated|routing node scripts/probe-cmd2.mjs
 import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, unlinkSync } from "node:fs";
 import os from "node:os";
@@ -11,6 +11,10 @@ import path from "node:path";
 // 臂切换走进程环境变量（lib/tuning.js 的 DSH_PURGE_TUNING），不写全局 tuning.json，
 // 这样 full/gated 两臂可以在同一台机器上并发跑而不互相踩。
 const arm = (process.env.PROBE_ARM || "full").trim();
+if (!["full", "gated", "routing"].includes(arm)) {
+  process.stderr.write(`probe-cmd2: 非法 PROBE_ARM=${JSON.stringify(arm)}，只接受 full|gated|routing\n`);
+  process.exit(2);
+}
 const profile = process.env.PROBE_PROFILE || "probe";
 const timeoutMs = Number(process.env.PROBE_TIMEOUT_MS || 180000);
 
@@ -19,7 +23,7 @@ const prompt = (() => {
 })();
 if (!prompt) { process.stderr.write("probe-cmd2: 空探针\n"); process.exit(2); }
 
-const childEnv = { ...process.env, DSH_PURGE_TUNING: JSON.stringify({ slotGate: arm === "gated" }) };
+const childEnv = { ...process.env, DSH_PURGE_TUNING: JSON.stringify({ slotGate: arm === "gated" ? true : arm === "routing" ? "routing" : false }) };
 
 const binJs = process.env.PROBE_DSH_BIN || "";
 // 可选：PROBE_MODEL / PROBE_REASONING 通过 --patch 覆盖默认模型，不必改 profile。
