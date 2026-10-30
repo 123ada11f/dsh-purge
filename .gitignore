@@ -4,3 +4,10 @@ node_modules/
 Thumbs.db
 # 加密槽明文源：只用于本地重新嵌入 asset-table.js，不进仓库（否则加密槽形同虚设）
 lib/default-prompt-inject.md
+
+# 本地密钥清洗工具产物（含明文映射，绝不入库）
+_secrets.local.txt
+tools/secrets.map.json
+
+# 探针实验数据（可重跑生成，体积大）
+probes/

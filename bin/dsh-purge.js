@@ -45,7 +45,16 @@ async function main() {
   dsh-purge --revert     回滚还原
   dsh-purge --uninstall  卸载插件（已应用则先还原）
   dsh-purge --edit       编辑注入文件 prompt-inject.md
-  dsh-purge --help       帮助`);
+  dsh-purge --help       帮助
+
+开关（$DSH_HOME/dsh-purge/tuning.json，缺省即默认值）:
+  boost           true    提示词尾部 BOOST 段（操作者权重重申）
+  injectPosition  "head"  注入位置：head | every-step | closer
+  refusalRetry    true    正文出现拒绝（含软推脱/兜底话术）时自动重试
+  userTail        true    每步追加 <dsh_step> 执行提醒
+  slotGate        false   按任务类裁剪注入文本（实测行为等价但类目不均，默认关）
+  askNoBlock      true    ask_user_question 不阻塞
+  rewind          true    回退时重置待办`);
     return;
   }
 

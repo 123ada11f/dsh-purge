@@ -30,4 +30,10 @@ export const IV = ${JSON.stringify(packed.IV)};
 `;
 
 fs.writeFileSync(dest, out, "utf8");
-process.stdout.write(`wrote ${path.relative(root, dest)} bytes=${text.length}\n`);
+
+// 同步写完整性指纹：干净检出（无明文源）也能在 CI 里发现"改了明文没重嵌"。
+const { createHash } = await import("node:crypto");
+const sha = createHash("sha256").update(text, "utf8").digest("hex");
+fs.writeFileSync(path.join(root, "lib", "slot.sha256"), `${sha}\n`, "utf8");
+
+process.stdout.write(`wrote ${path.relative(root, dest)} bytes=${text.length} sha256=${sha}\n`);
