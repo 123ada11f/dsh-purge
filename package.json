@@ -31,7 +31,7 @@
   ],
   "scripts": {
     "embed-prompt": "node scripts/embed-default-prompt.mjs",
-    "test": "node --test \"test/**/*.test.mjs\""
+    "test": "node --test"
   },
   "license": "MIT",
   "keywords": [
